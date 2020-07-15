@@ -1,7 +1,6 @@
 package com.kerjen.vuzixdemo.network
 
 import android.util.Log
-import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -14,6 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import okio.ByteString.Companion.toByteString
+import org.msgpack.jackson.dataformat.MessagePackFactory
 
 class WebSocketService {
     val listener = WebSocketListener()
@@ -21,7 +21,7 @@ class WebSocketService {
     private val request = Request.Builder().url("ws://35.228.119.156:5000").build()
     private lateinit var webSocketClient: WebSocket
     private val listenersPool = HashMap<String, ApiCallback<*>>()
-    private val objectMapper = ObjectMapper(JsonFactory())
+    private val objectMapper = ObjectMapper(MessagePackFactory())
         .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
         .registerKotlinModule()
 

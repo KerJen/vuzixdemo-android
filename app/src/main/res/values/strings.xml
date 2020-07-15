@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Vuzix Demo</string>
+    <string name="lost_internet_connection">Connection lost</string>
 </resources>

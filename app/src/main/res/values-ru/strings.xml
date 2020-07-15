@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vuzix Демо</string>
+    <string name="lost_internet_connection">Потеряно соединение</string>
+</resources>
