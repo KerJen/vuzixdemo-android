@@ -29,21 +29,42 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //TODO: replace the notify logic to the adapter
+
         viewModel.getThingChangedLiveData().observe(this) {
-            val index = adapter.things.indexOfFirst { thing -> it.id == thing.id }
-            adapter.things[index].state = it.state
-            adapter.notifyItemChanged(index)
+            val position = adapter.things.indexOfFirst { thing -> it.id == thing.id }
+            adapter.things[position].apply {
+                state = it.state
+                text = it.text
+            }
+            adapter.notifyItemChanged(position)
+        }
+
+        viewModel.getThingRemovedLiveData().observe(this) { id ->
+            val position = adapter.things.indexOfFirst { thing -> id == thing.id }
+            adapter.things.removeAt(position)
+            adapter.notifyDataSetChanged()
+            if (adapter.things.isEmpty()) {
+                thingsListVisible(false)
+            }
         }
 
         viewModel.getThingAddedLiveData().observe(this) {
+            if (adapter.things.isEmpty()) {
+                thingsListVisible(true)
+            }
             adapter.things.add(it)
-            adapter.notifyItemInserted(adapter.itemCount - 1)
+            adapter.notifyDataSetChanged()
+            thingsList.scrollToPosition(adapter.itemCount - 1)
         }
 
         viewModel.getThingsLiveData().observe(this) {
             setUpThingsList(it)
-            viewModel.listenThingStateChanged()
-            viewModel.listenThingAdded()
+            with(viewModel) {
+                listenThingStateChanged()
+                listenThingAdded()
+                listenThingRemoved()
+            }
         }
 
         webSocketService.listener.webSocketStateCallback.add {
@@ -61,16 +82,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun setUpThingsList(things: MutableList<Thing>) {
+        thingsList.layoutManager = LinearLayoutManager(this)
+        adapter = ThingsAdapter(things)
+        thingsList.adapter = adapter
         if (things.isEmpty()) {
             thingsListVisible(false)
         } else {
             thingsListVisible(true)
-            thingsList.layoutManager = LinearLayoutManager(this)
-            adapter = ThingsAdapter(things)
             adapter.thingCheckedChanged = {
                 viewModel.changeThingState(it)
             }
-            thingsList.adapter = adapter
         }
     }
 

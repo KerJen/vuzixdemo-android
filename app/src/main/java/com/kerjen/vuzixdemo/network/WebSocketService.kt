@@ -55,10 +55,10 @@ class WebSocketService {
         listener.webSocketStateCallback.add {
             when (it) {
                 WebSocketState.CLOSED -> {
-                    //reconnect()
+                    reconnect()
                 }
                 WebSocketState.FAILURE -> {
-                    //reconnect()
+                    reconnect()
                 }
             }
         }

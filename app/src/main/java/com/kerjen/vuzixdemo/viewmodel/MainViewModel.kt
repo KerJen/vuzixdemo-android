@@ -18,6 +18,9 @@ class MainViewModel @ViewModelInject constructor(private val repo: MainRepositor
     private val thingAddedLiveData = MutableLiveData<Thing>()
     fun getThingAddedLiveData(): LiveData<Thing> = thingAddedLiveData
 
+    private val thingRemovedLiveData = MutableLiveData<String>()
+    fun getThingRemovedLiveData(): LiveData<String> = thingRemovedLiveData
+
     fun getThings() {
         repo.getThings {
             thingsLiveData.postValue(it.things)
@@ -39,6 +42,12 @@ class MainViewModel @ViewModelInject constructor(private val repo: MainRepositor
     fun listenThingAdded() {
         repo.listenThingAdded {
             thingAddedLiveData.postValue(it.thing)
+        }
+    }
+
+    fun listenThingRemoved() {
+        repo.listenThingRemoved {
+            thingRemovedLiveData.postValue(it.id)
         }
     }
 }

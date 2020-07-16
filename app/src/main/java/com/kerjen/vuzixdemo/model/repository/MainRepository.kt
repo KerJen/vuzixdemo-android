@@ -1,10 +1,7 @@
 package com.kerjen.vuzixdemo.model.repository
 
 import com.kerjen.vuzixdemo.model.Thing
-import com.kerjen.vuzixdemo.model.dto.ThingAddedUpdateDTO
-import com.kerjen.vuzixdemo.model.dto.ThingChangeResponseDTO
-import com.kerjen.vuzixdemo.model.dto.ThingChangedUpdateDTO
-import com.kerjen.vuzixdemo.model.dto.ThingsGetResponseDTO
+import com.kerjen.vuzixdemo.model.dto.*
 import com.kerjen.vuzixdemo.network.WebSocketService
 import javax.inject.Inject
 
@@ -28,7 +25,7 @@ class MainRepository @Inject constructor(val service: WebSocketService) {
         service.on("updates.thing.added", ThingAddedUpdateDTO::class.java, callback)
     }
 
-    fun listenThingRemoved(callback: () -> (Unit)) {
-        //service.on("things.remove", callback)
+    fun listenThingRemoved(callback: (ThingRemovedUpdateDTO) -> (Unit)) {
+        service.on("updates.thing.removed", ThingRemovedUpdateDTO::class.java, callback)
     }
 }
