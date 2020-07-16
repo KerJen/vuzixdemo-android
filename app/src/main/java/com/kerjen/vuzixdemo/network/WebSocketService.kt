@@ -18,14 +18,16 @@ import org.msgpack.jackson.dataformat.MessagePackFactory
 class WebSocketService {
     val listener = WebSocketListener()
     private val okHttpClient = OkHttpClient()
-    private val request = Request.Builder().url("ws://35.228.119.156:5000").build()
-    private lateinit var webSocketClient: WebSocket
+    private lateinit var request: Request
+    private var webSocketClient: WebSocket? = null
     private val listenersPool = HashMap<String, ApiCallback<*>>()
     private val objectMapper = ObjectMapper(MessagePackFactory())
         .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
         .registerKotlinModule()
 
-    fun connect() {
+    //TODO: перевести на socket.io, пинг реализовать
+    fun connect(ip: String, port: String) {
+        request = Request.Builder().url("ws://$ip:$port").build()
         webSocketClient = okHttpClient.newWebSocket(request, listener)
         listenResponses()
         listenForDisconnect()
@@ -55,7 +57,7 @@ class WebSocketService {
         listener.webSocketStateCallback.add {
             when (it) {
                 WebSocketState.CLOSED -> {
-                    reconnect()
+                    //reconnect()
                 }
                 WebSocketState.FAILURE -> {
                     reconnect()
@@ -66,6 +68,7 @@ class WebSocketService {
 
     private fun reconnect() {
         listenersPool.clear()
+        webSocketClient?.close(1000, null)
         GlobalScope.launch {
             delay(5000)
             webSocketClient = okHttpClient.newWebSocket(request, listener)
@@ -77,7 +80,7 @@ class WebSocketService {
         val serializedData = objectMapper.writeValueAsBytes(data)
         val serialized = serializedMethodName + serializedData
 
-        webSocketClient.send(serialized.toByteString())
+        webSocketClient?.send(serialized.toByteString())
     }
 
     fun request(method: String) {
@@ -85,7 +88,7 @@ class WebSocketService {
         val serializedData = objectMapper.writeValueAsBytes(EmptyDTO())
         val serialized = serializedMethodName + serializedData
 
-        webSocketClient.send(serialized.toByteString())
+        webSocketClient?.send(serialized.toByteString())
     }
 
     fun <T> on(method: String, dataClass: Class<T>, callback: (T) -> Unit) {

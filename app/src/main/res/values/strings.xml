@@ -2,4 +2,8 @@
     <string name="app_name">Vuzix Demo</string>
     <string name="lost_internet_connection">Connection lost</string>
     <string name="there_is_no_any_things">There is no any things</string>
+    <string name="ip_address">IP Address</string>
+    <string name="port">Port</string>
+    <string name="connect">Connect</string>
+    <string name="wrong_data">Wrong data</string>
 </resources>
