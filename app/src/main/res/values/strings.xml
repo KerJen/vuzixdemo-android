@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Vuzix Demo</string>
     <string name="lost_internet_connection">Connection lost</string>
+    <string name="there_is_no_any_things">There is no any things</string>
 </resources>

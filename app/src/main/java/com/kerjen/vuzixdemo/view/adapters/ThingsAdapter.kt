@@ -8,15 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kerjen.vuzixdemo.R
 import com.kerjen.vuzixdemo.model.Thing
 
-class ThingsAdapter(private val things: MutableList<Thing>) :
+class ThingsAdapter(val things: MutableList<Thing>) :
     RecyclerView.Adapter<ThingsAdapter.StatesHolder>() {
 
+    var thingCheckedChanged: ((Thing) -> (Unit))? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatesHolder {
-        return StatesHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.item_thing, parent, false
-            )
-        )
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_thing, parent, false) as CheckBox
+        val holder = StatesHolder(view)
+        view.setOnClickListener {
+            things[holder.adapterPosition].state = view.isChecked
+            thingCheckedChanged?.invoke(things[holder.adapterPosition])
+        }
+        return holder
     }
 
     override fun getItemCount() = things.size

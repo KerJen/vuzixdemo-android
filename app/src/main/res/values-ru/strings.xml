@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Vuzix Демо</string>
     <string name="lost_internet_connection">Потеряно соединение</string>
+    <string name="there_is_no_any_things">Здесь нет устройств</string>
 </resources>

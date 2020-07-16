@@ -1,6 +1,7 @@
 package com.kerjen.vuzixdemo.view
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
@@ -23,11 +24,26 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val viewModel: MainViewModel by viewModels()
 
+    private lateinit var adapter: ThingsAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.getThingChangedLiveData().observe(this) {
+            val index = adapter.things.indexOfFirst { thing -> it.id == thing.id }
+            adapter.things[index].state = it.state
+            adapter.notifyItemChanged(index)
+        }
+
+        viewModel.getThingAddedLiveData().observe(this) {
+            adapter.things.add(it)
+            adapter.notifyItemInserted(adapter.itemCount - 1)
+        }
+
         viewModel.getThingsLiveData().observe(this) {
             setUpThingsList(it)
+            viewModel.listenThingStateChanged()
+            viewModel.listenThingAdded()
         }
 
         webSocketService.listener.webSocketStateCallback.add {
@@ -41,12 +57,32 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        //webSocketService.connect()
+        webSocketService.connect()
     }
 
     private fun setUpThingsList(things: MutableList<Thing>) {
-        thingsList.layoutManager = LinearLayoutManager(this)
-        thingsList.adapter = ThingsAdapter(things)
+        if (things.isEmpty()) {
+            thingsListVisible(false)
+        } else {
+            thingsListVisible(true)
+            thingsList.layoutManager = LinearLayoutManager(this)
+            adapter = ThingsAdapter(things)
+            adapter.thingCheckedChanged = {
+                viewModel.changeThingState(it)
+            }
+            thingsList.adapter = adapter
+        }
+    }
+
+    private fun thingsListVisible(visible: Boolean) {
+        if (visible) {
+            thingsList.visibility = View.VISIBLE
+            thingsNoText.visibility = View.GONE
+
+        } else {
+            thingsList.visibility = View.GONE
+            thingsNoText.visibility = View.VISIBLE
+        }
     }
 
     private fun getFakeThings() =
