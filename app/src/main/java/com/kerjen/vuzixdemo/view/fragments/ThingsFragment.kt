@@ -8,22 +8,36 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kerjen.vuzixdemo.R
 import com.kerjen.vuzixdemo.model.Thing
+import com.kerjen.vuzixdemo.network.WebSocketService
+import com.kerjen.vuzixdemo.network.WebSocketState
 import com.kerjen.vuzixdemo.view.adapters.ThingsAdapter
 import com.kerjen.vuzixdemo.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_things.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ThingsFragment : Fragment(R.layout.fragment_things) {
+
+    @Inject
+    lateinit var webSocketService: WebSocketService
 
     private val viewModel: MainViewModel by activityViewModels()
 
     private lateinit var adapter: ThingsAdapter
 
+    private val callback: (WebSocketState) -> (Unit) = {
+        when (it) {
+            WebSocketState.CONNECTED -> viewModel.getThings()
+            WebSocketState.CLOSED -> {} //TODO:
+            WebSocketState.FAILURE -> {} //TODO:
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.getThings()
+        webSocketService.listener.webSocketStateCallback.add(callback)
 
         viewModel.getThingChangedLiveData().observe(viewLifecycleOwner) {
             val position = adapter.things.indexOfFirst { thing -> it.id == thing.id }
@@ -92,4 +106,9 @@ class ThingsFragment : Fragment(R.layout.fragment_things) {
             Thing("", true, "Открыть дверь"),
             Thing("", false, "Достать коробку №1")
         )
+
+    override fun onDestroy() {
+        webSocketService.listener.webSocketStateCallback.remove(callback)
+        super.onDestroy()
+    }
 }

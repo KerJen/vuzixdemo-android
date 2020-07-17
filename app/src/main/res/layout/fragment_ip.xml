@@ -16,13 +16,15 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_weight="0.7"
-            android:hint="@string/ip_address" />
+            android:hint="@string/ip_address"
+            android:inputType="phone" />
 
         <EditText
             android:id="@+id/portEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/port" />
+            android:hint="@string/port"
+            android:inputType="number" />
     </LinearLayout>
 
     <Button

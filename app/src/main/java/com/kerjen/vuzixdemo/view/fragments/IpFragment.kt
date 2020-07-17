@@ -3,10 +3,11 @@ package com.kerjen.vuzixdemo.view.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.kerjen.vuzixdemo.R
 import com.kerjen.vuzixdemo.network.WebSocketService
 import com.kerjen.vuzixdemo.network.WebSocketState
-import com.kerjen.vuzixdemo.view.MainActivity
+import com.kerjen.vuzixdemo.network.WebSocketState.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_ip.*
 import javax.inject.Inject
@@ -17,19 +18,18 @@ class IpFragment : Fragment(R.layout.fragment_ip) {
     @Inject
     lateinit var webSocketService: WebSocketService
 
-    val callback: (WebSocketState) -> (Unit) = {
+    private val callback: (WebSocketState) -> (Unit) = {
         when (it) {
-            WebSocketState.CONNECTED -> {
-                (activity as MainActivity).openThingsFragment()
+            CONNECTED -> parentFragmentManager.commit {
+                replace(R.id.fragmentContainer, ThingsFragment())
             }
-            else -> {
-            }
+            CLOSED -> {} //TODO:
+            FAILURE -> {} //TODO:
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         webSocketService.listener.webSocketStateCallback.add(callback)
 
         connectButton.setOnClickListener {
