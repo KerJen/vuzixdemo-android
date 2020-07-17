@@ -1,5 +1,6 @@
 package com.kerjen.vuzixdemo.network
 
+import android.content.Context
 import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
@@ -25,8 +26,7 @@ class WebSocketService {
         .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
         .registerKotlinModule()
 
-    //TODO: перевести на socket.io, пинг реализовать
-    fun connect(ip: String, port: String) {
+    fun connect(ip: String, port: String, context: Context) {
         request = Request.Builder().url("ws://$ip:$port").build()
         webSocketClient = okHttpClient.newWebSocket(request, listener)
         listenResponses()
@@ -56,22 +56,26 @@ class WebSocketService {
     private fun listenForDisconnect() {
         listener.webSocketStateCallback.add {
             when (it) {
-                WebSocketState.CLOSED -> {
-                    //reconnect()
-                }
-                WebSocketState.FAILURE -> {
-                    reconnect()
-                }
+                WebSocketState.FAILURE -> reconnect()
             }
         }
     }
 
     private fun reconnect() {
-        listenersPool.clear()
-        webSocketClient?.close(1000, null)
+        listenerPoolOnceClean()
         GlobalScope.launch {
             delay(5000)
             webSocketClient = okHttpClient.newWebSocket(request, listener)
+        }
+    }
+
+    fun listenerPoolOnceClean() {
+        val iterator = listenersPool.iterator()
+        while (iterator.hasNext()) {
+            val current = iterator.next()
+            if (current.value.once) {
+                iterator.remove()
+            }
         }
     }
 
@@ -92,11 +96,11 @@ class WebSocketService {
     }
 
     fun <T> on(method: String, dataClass: Class<T>, callback: (T) -> Unit) {
-        listenersPool[method] = ApiCallback(callback, dataClass)
+        listenersPool[method] = ApiCallback(false, callback, dataClass)
     }
 
     fun <T> once(method: String, dataClass: Class<T>, callback: (T) -> Unit) {
-        listenersPool[method] = ApiCallback({
+        listenersPool[method] = ApiCallback(true, {
             listenersPool.remove(method)
             callback(it)
         }, dataClass)

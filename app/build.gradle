@@ -40,6 +40,7 @@ dependencies {
 
     //Network
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'io.socket:socket.io-client:1.0.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.10.2'
     implementation 'org.msgpack:jackson-dataformat-msgpack:0.8.20'
@@ -54,6 +55,7 @@ dependencies {
 
     //Helpers
     implementation 'com.squareup.okio:okio:2.6.0'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 
     //Tests
     testImplementation 'junit:junit:4.13'

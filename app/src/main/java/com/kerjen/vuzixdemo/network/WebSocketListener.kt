@@ -10,7 +10,6 @@ class WebSocketListener : WebSocketListener() {
     var webSocketStateCallback = ArrayList<((WebSocketState) -> (Unit))?>()
     var webSocketMessageCallback: ((ByteArray) -> (Unit))? = null
 
-
     override fun onOpen(webSocket: WebSocket, response: Response) {
         webSocketStateCallback.forEach {
             it?.invoke(WebSocketState.CONNECTED)
