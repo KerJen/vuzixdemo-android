@@ -37,7 +37,7 @@ class IpFragment : Fragment(R.layout.fragment_ip) {
             val port = portEditText.text.toString()
 
             try {
-                webSocketService.connect(ip, port, requireContext())
+                webSocketService.connect(ip, port)
             } catch (e: IllegalArgumentException) {
                 ipEditText.error = getString(R.string.wrong_data)
                 portEditText.error = getString(R.string.wrong_data)

@@ -1,6 +1,5 @@
 package com.kerjen.vuzixdemo.network
 
-import android.content.Context
 import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
@@ -26,7 +25,7 @@ class WebSocketService {
         .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
         .registerKotlinModule()
 
-    fun connect(ip: String, port: String, context: Context) {
+    fun connect(ip: String, port: String) {
         request = Request.Builder().url("ws://$ip:$port").build()
         webSocketClient = okHttpClient.newWebSocket(request, listener)
         listenResponses()

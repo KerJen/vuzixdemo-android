@@ -6,7 +6,6 @@
     <application
         android:name=".AppLoader"
         android:allowBackup="true"
-        android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
         android:networkSecurityConfig="@xml/network_config"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
