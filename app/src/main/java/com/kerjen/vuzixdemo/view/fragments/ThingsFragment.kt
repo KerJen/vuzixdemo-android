@@ -2,6 +2,7 @@ package com.kerjen.vuzixdemo.view.fragments
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
@@ -14,6 +15,9 @@ import com.kerjen.vuzixdemo.view.adapters.ThingsAdapter
 import com.kerjen.vuzixdemo.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_things.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -21,16 +25,26 @@ class ThingsFragment : Fragment(R.layout.fragment_things) {
 
     @Inject
     lateinit var webSocketService: WebSocketService
-
     private val viewModel: MainViewModel by activityViewModels()
-
     private lateinit var adapter: ThingsAdapter
+    private var reconnectAttemptCount = 0
 
     private val callback: (WebSocketState) -> (Unit) = {
         when (it) {
-            WebSocketState.CONNECTED -> viewModel.getThings()
-            WebSocketState.CLOSED -> {} //TODO:
-            WebSocketState.FAILURE -> {} //TODO:
+            WebSocketState.CONNECTED -> {
+                reconnectAttemptCount = 0
+                viewModel.getThings()
+            }
+            WebSocketState.FAILURE -> {
+                GlobalScope.launch(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.trying_reconnect)
+                                + " (" + (++reconnectAttemptCount) + ")",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 

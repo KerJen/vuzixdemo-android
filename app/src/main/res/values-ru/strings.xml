@@ -7,4 +7,6 @@
     <string name="port">Порт</string>
     <string name="connect">Подключиться</string>
     <string name="wrong_data">Неверные данные</string>
+    <string name="trying_reconnect">Пробуем переподключиться</string>
+    <string name="connection_error">Ошибка подключения</string>
 </resources>

@@ -25,11 +25,19 @@ class WebSocketService {
         .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
         .registerKotlinModule()
 
+    //TODO: добавить удаление предыдущих connectCallbacks
     fun connect(ip: String, port: String) {
+        val connectCallbackIndex = listener.webSocketStateCallback.size
+        listener.webSocketStateCallback.add {
+            if (it == WebSocketState.CONNECTED) {
+                listenResponses()
+                listenForDisconnect()
+            }
+            listener.webSocketStateCallback.removeAt(connectCallbackIndex)
+        }
+
         request = Request.Builder().url("ws://$ip:$port").build()
         webSocketClient = okHttpClient.newWebSocket(request, listener)
-        listenResponses()
-        listenForDisconnect()
     }
 
     private fun listenResponses() {
@@ -54,9 +62,7 @@ class WebSocketService {
 
     private fun listenForDisconnect() {
         listener.webSocketStateCallback.add {
-            when (it) {
-                WebSocketState.FAILURE -> reconnect()
-            }
+            if (it == WebSocketState.FAILURE) reconnect()
         }
     }
 
@@ -68,7 +74,7 @@ class WebSocketService {
         }
     }
 
-    fun listenerPoolOnceClean() {
+    private fun listenerPoolOnceClean() {
         val iterator = listenersPool.iterator()
         while (iterator.hasNext()) {
             val current = iterator.next()

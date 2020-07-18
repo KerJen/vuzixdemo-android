@@ -6,4 +6,6 @@
     <string name="port">Port</string>
     <string name="connect">Connect</string>
     <string name="wrong_data">Wrong data</string>
+    <string name="trying_reconnect">Trying reconnect</string>
+    <string name="connection_error">Connection error</string>
 </resources>
